@@ -4,7 +4,7 @@ from scipy import stats
 import sys
 
 
-def prepareData():
+def prepareData(train_x_file_name,train_y_file_name,test_file_name):
     arr = np.loadtxt("train_x.txt", usecols=(1,2,3,4,5,6,7), dtype=np.float32, delimiter=',')
     df = list()
     with open("train_x.txt",'r') as file:
@@ -18,7 +18,7 @@ def prepareData():
             df.append(np.append(arr[i],appendcol))
     x_train = np.array(df).astype('float32')
     y_train = np.loadtxt("train_y.txt")
-    return x_train, y_train
+    return x_train, y_train, x_test
 
 def normalizeData(x_train):
     #x_train = stats.zscore(x_train)
