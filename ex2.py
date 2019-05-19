@@ -399,14 +399,14 @@ if __name__ == "__main__":
         predicts[model_name.lower()] = model.predict(x_test,y_test,to_print=True)
         print("\n")
 
-    # for i in range(len(x_test)):
-    #     for model_name in model_names:
-    #         if model_name.lower == 'svm':
-    #             suffix = ''
-    #         else:
-    #             suffix = ', '
-    #         print(model_name.lower() + ": " + str(predicts[model_name.lower()][i]) + suffix,end='')
-    #     print()
+    for i in range(len(x_test)):
+        for model_name in model_names:
+            if model_name.lower == 'pa':
+                suffix = ''
+            else:
+                suffix = ', '
+            print(model_name.lower() + ": " + str(predicts[model_name.lower()][i]) + suffix,end='')
+        print()
      
 
     

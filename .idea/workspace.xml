@@ -15,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ex2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="412">
-              <caret line="401" column="4" selection-start-line="401" selection-start-column="6" selection-end-line="408" selection-end-column="17" />
+            <state relative-caret-position="425">
+              <caret line="401" column="4" selection-start-line="401" selection-start-column="4" selection-end-line="408" selection-end-column="15" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -264,8 +264,8 @@ M_dummy = np.array(list(map(lambda x: 1 if x == 'M' else 0, X[:, 0])))</expressi
     </entry>
     <entry file="file://$PROJECT_DIR$/ex2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="412">
-          <caret line="401" column="4" selection-start-line="401" selection-start-column="6" selection-end-line="408" selection-end-column="17" />
+        <state relative-caret-position="425">
+          <caret line="401" column="4" selection-start-line="401" selection-start-column="4" selection-end-line="408" selection-end-column="15" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
