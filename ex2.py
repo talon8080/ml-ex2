@@ -1,16 +1,18 @@
 import numpy as np
-from sklearn.utils import shuffle
 from scipy import stats
 import sys
+from sklearn.utils import shuffle as ss
 from abc import ABC, abstractmethod
+from random import randrange, shuffle
 
 class Model(ABC):
     '''
-    Model Class interface
+    Model Abstract Class
     '''
 
     def __init__(self,epochs=10):
         self.w = None
+        self.model_name = "model"
         self.epochs = epochs
         super(Model, self).__init__()
 
@@ -18,20 +20,36 @@ class Model(ABC):
     def fit(self,x_train,y_train):
         pass
 
-    def predict(self,x_test):
+    def predict(self,x_test,y_test,to_print=False):
+        error_count = success_count = 0
         res = [-1] * len(x_test)
         for t in range(0, len(x_test)):
             res[t] = np.argmax(np.dot(self.w, x_test[t]))
+
+            if res[t] != y_test[t]:
+                error_count+=1
+            else:
+                success_count+=1
+
+        if to_print:
+            print(self.model_name + ":")
+            print("accuracy: {}".format(float(success_count)/len(x_test)),end=' ')
+            print("error: {}".format(float(error_count)/len(x_test)))
         return res
 
 
 class Perceptron(Model):
 
+    def __init__(self, *args, **kwargs):
+        super(Perceptron, self).__init__(*args, **kwargs)
+        self.model_name = 'Perceptron'
+
     def fit(self,x_train,y_train):
         w = np.random.uniform(-0.5, 0.5, (3, len(x_train[0])))
         eta = np.random.uniform(0.01, 0.4)
         for epoch in range(self.epochs):
-            x_train, y_train = shuffle(x_train, y_train, random_state=1)
+            shuffle(x_train)
+            shuffle(y_train)
             for x, y in zip(x_train, y_train):
                 y_hat = np.argmax(np.dot(w, x))
                 if y_hat != y:
@@ -48,24 +66,48 @@ class PA(Model):
 
 class SVM(Model):
 
-    def fit(self,x_train,y_train):
-        w = np.random.uniform(-0.5, 0.5, (3, len(x_train[0])))
+    def __init__(self, *args, **kwargs):
+        super(SVM, self).__init__(*args, **kwargs)
+        self.model_name = 'SVM'
+
+    def fit(self,X,Y,folds=100):
+        X = X.copy()
+        Y = Y.copy()
+        best_acc = -1
         alpha = np.random.random()
         eta = np.random.uniform(0.001, 0.5)
-        svm_w_list = []
-        for epoch in range(self.epochs):
-            x_train, y_train = shuffle(x_train, y_train, random_state=1)
-            for x, y in zip(x_train, y_train):
-                y_hat = np.argmax(np.dot(w, x))
-                if y_hat != y:
-                    w[int(y), :] = (1 - eta * alpha) * w[int(y), :] + eta * x
-                    w[int(y_hat), :] = (1 - eta * alpha) * w[int(y_hat), :] - eta * x
-                for i in range(w.shape[0]):
-                    if i != y and i != y_hat:
-                        w[i, :] = (1 - eta * alpha) * w[i, :]
-            svm_w_list.append(w)
-        self.w = svm_w_list
-        return svm_w_list
+
+        for j in range(folds):
+
+            if self.w is not None:
+                w = self.w
+            else:
+                w = np.random.uniform(-0.5, 0.5, (3, len(X[0])))
+
+            svm_w_list = []
+            x_train, x_test, y_train, y_test = split_train_test_with_prop_random(X, Y)
+            for epoch in range(self.epochs):
+                shuffle(x_train)
+                shuffle(y_train)
+                shuffle(x_test)
+                shuffle(y_test)
+                for x, y in zip(x_train, y_train):
+                    y_hat = np.argmax(np.dot(w, x))
+                    if y_hat != y:
+                        w[int(y), :] = (1 - eta * alpha) * w[int(y), :] + eta * x
+                        w[int(y_hat), :] = (1 - eta * alpha) * w[int(y_hat), :] - eta * x
+                    for i in range(w.shape[0]):
+                        if i != y and i != y_hat:
+                            w[i, :] = (1 - eta * alpha) * w[i, :]
+                svm_w_list.append(w.copy())
+
+            idx , score = validate(svm_w_list,x_test,y_test)
+            print(score)
+            if score > best_acc:
+                best_acc = score
+                self.w = svm_w_list[idx]
+
+        return self.w
 
 
 def prepareData(train_x_file_name,train_y_file_name,test_file_name):
@@ -97,72 +139,45 @@ def normalizeData(x_train):
     return x_train
 
 
+def train_test_split(dataset, split=.7):
+    train = list()
+    train_size = split * len(dataset)
+    dataset_copy = list(dataset)
+    while len(train) < train_size:
+        index = randrange(len(dataset_copy))
+        train.append(dataset_copy.pop(index))
+    return train, dataset_copy
+
+
 def splitData(x_train, y_train):
-    
     x_test = x_train[-int(np.round(0.3*len(x_train))):]
     x_train = x_train[:int(np.round(0.7*len(x_train)))]
     y_test = y_train[-int(np.round(0.3*len(y_train))):]
     y_train = y_train[:int(np.round(0.7*len(y_train)))]
-
     return x_train, x_test, y_train, y_test
 
-
-# def perceptron_fit(x_train, y_train):
-#     w = np.random.uniform(-0.5,0.5,(3,len(x_train[0])))
-#     eta = np.random.uniform(0.01,0.4)
-#     for epoch in range(10):
-#         x_train, y_train = shuffle(x_train,y_train,random_state = 1)
-#         for x,y in zip(x_train,y_train):
-#             y_hat = np.argmax(np.dot(w,x))
-#             if y_hat != y:
-#                 w[int(y),:] = w[int(y),:] + eta*x
-#                 w[int(y_hat),:] = w[int(y_hat),:] - eta*x
-#     return w
-    
-
-# def svm_fit(x_train, y_train):
-#     w = np.random.uniform(-0.5,0.5,(3,len(x_train[0])))
-#     alpha = np.random.random()
-#     eta = np.random.uniform(0.001,0.5)
-#     svm_w_list = []
-#     for epoch in range(10):
-#         x_train, y_train = shuffle(x_train,y_train,random_state = 1)
-#         for x,y in zip(x_train,y_train):
-#             y_hat = np.argmax(np.dot(w,x))
-#             if y_hat != y:
-#                 w[int(y),:] = (1-eta*alpha)*w[int(y),:] + eta*x
-#                 w[int(y_hat),:] = (1-eta*alpha)*w[int(y_hat),:] - eta*x
-#             for i in range(w.shape[0]):
-#                 if i != y and i !=y_hat:
-#                     w[i,:] = (1-eta*alpha)*w[i,:]
-#         svm_w_list.append(w)
-#     return svm_w_list
-
+def split_train_test_with_prop_random(X, y, prop=.7):
+    X = X.copy()
+    index_random = np.arange(0, len(X))
+    shuffle(index_random)
+    index_train = index_random[0: int(prop * len(index_random))]
+    index_test = index_random[int(prop * len(index_random)): len(index_random)]
+    X_train = X.copy()[index_train]
+    y_train = y.copy()[index_train]
+    X_test = X.copy()[index_test]
+    y_test = y.copy()[index_test]
+    return X_train, X_test, y_train, y_test
 
 def validate(w_list, x_valid, y_valid):
-
     w_dict = {}
-    for w in w_list:
-        w_dict[w] = 0
+    for i in range(len(w_list)):
+        w = w_list[i]
+        w_dict[i] = 0
         for t in range(0,len(x_valid)):
             y_hat = np.argmax(np.dot(w,x_valid[t]))
             if y_hat == y_valid[t]:
-                w_dict[w] = w_dict[w] + 1
-    return max(w_dict.items(), key=operator.itemgetter(1))[0]
-
-# def svm_predict(w_svm, x_test, y_test):
-#
-#     e_perceptron = 0
-#     c_perceptron = 0
-#     for t in range(0,len(x_test)):
-#         y_hat = np.argmax(np.dot(w_svm,x_test[t]))
-#         if y_hat != y_test[t]:
-#             e_perceptron = e_perceptron + 1
-#         else:
-#             c_perceptron = c_perceptron + 1
-#     print("svm error: {}".format(float(e_perceptron)/len(x_test)))
-#     print("svm correct: {}".format(float(c_perceptron)/len(x_test)))
- 
+                w_dict[i] = w_dict[i] + 1
+    return max(w_dict.items(), key=lambda x:x[1])
 
 def min_max_scaling(X):
     n_samples = X.shape[0]
@@ -193,23 +208,23 @@ if __name__ == "__main__":
 
     x_train, y_train = prepareData(train_x_file_name,train_y_file_name,test_file_name)
     x_train = min_max_scaling(x_train[:,:7])
-    x_train, x_test, y_train, y_test = splitData(x_train, y_train)
+    x_train, x_test, y_train, y_test = split_train_test_with_prop_random(x_train, y_train)
 
     model_names = ['Perceptron','SVM']
     predicts = {}
     for model_name in model_names:
         model = eval(model_name)(epochs=20)
         w = model.fit(x_train, y_train)
-        predicts[model_name.lower()] = model.predict(x_test)
+        predicts[model_name.lower()] = model.predict(x_test,y_test,to_print=True)
 
-    for i in range(len(x_test)):
-        for model_name in model_names:
-            if model_name.lower == 'svm':
-                suffix = ''
-            else:
-                suffix = ', '
-            print(model_name.lower() + ": " + str(predicts[model_name.lower()][i]) + suffix,end='')
-        print()
+    # for i in range(len(x_test)):
+    #     for model_name in model_names:
+    #         if model_name.lower == 'svm':
+    #             suffix = ''
+    #         else:
+    #             suffix = ', '
+    #         print(model_name.lower() + ": " + str(predicts[model_name.lower()][i]) + suffix,end='')
+    #     print()
      
 
     
