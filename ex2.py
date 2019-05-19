@@ -51,17 +51,17 @@ class Perceptron(Model):
         y_train = Y.copy()
         x_test = X_test.copy()
         y_test = Y_test.copy()
-        eta = np.random.uniform(0.01,0.3)
+        eta = 0.27667014339393453
         best_acc = -1
 
         accuracy_list = np.zeros(self.epochs)
         for epoch in range(self.epochs):
             # x_train, y_train, x_valid, y_valid = validation_set(X, Y)
             # Need to shuffle on X and Y
-            shuffle(x_train)
-            shuffle(y_train)
-            shuffle(x_test)
-            shuffle(y_test)
+            # shuffle(x_train)
+            # shuffle(y_train)
+            # shuffle(x_test)
+            # shuffle(y_test)
             for x,y in zip(x_train,y_train):
                 y_hat = np.argmax(np.dot(w,x))
                 if y_hat != y:
@@ -69,15 +69,16 @@ class Perceptron(Model):
                     w[int(y_hat),:] = w[int(y_hat),:] - eta * x
 
             accuracy_list[epoch] = pred_valid(x_test, y_test, w)
-        # accuracy_model = accuracy_list.mean()
-        # print("eta: {}\n accuracy: {}".format(eta, accuracy_model))
-        # self.w = w
 
-        idx , score = validate(accuracy_list,x_test,y_test)
-        print(np.true_divide(score,y_test.shape[0]))
-        if score > best_acc:
-            best_acc = score
-            self.w = accuracy_list[idx]
+        accuracy_model = accuracy_list.mean()
+        print("eta: {}\n accuracy: {}".format(eta, accuracy_model))
+        self.w = w
+
+        # idx , score = validate(accuracy_list,x_test,y_test)
+        # print(np.true_divide(score,y_test.shape[0]))
+        # if score > best_acc:
+        #     best_acc = score
+        #     self.w = accuracy_list[idx]
 
 
         return w
@@ -86,11 +87,7 @@ class Perceptron(Model):
 
 
 class PA(Model):
-    def fit(self,X,Y):
-        #w = np.random.uniform(-0.5,0.5,(3,X.shape[1]))
-        w = np.array([[-0.78513436,0.57848318,0.21929112,-0.71731913,1.05820117,0.85819699,-1.49767045,-0.124864,0.02344565,-0.34982529,0.04340942],
-        [-0.02670186,-0.21029281,-0.00643031,-1.02291055,1.40160315,0.078589,0.60966336,-0.31403649,0.39471659,0.24901959,0.11034403],
-        [0.67687675,-0.20768354,0.32662767,2.54970554,-2.40675052,-1.36631277,1.12136024,0.50403388,0.04946138,-0.37992296,-0.18701959]])
+    def fit(self,X,Y,X_test,Y_test,w=None):
         accuracy_list = np.zeros(self.epochs)
         for epoch in range(self.epochs):
             x_train, y_train, x_valid, y_valid = validation_set(X, Y)
@@ -98,11 +95,10 @@ class PA(Model):
                 y_hat = np.argmax(np.dot(w,x))
                 loss = max([0.0, 1.0 - np.dot(w[int(y),:], x) + np.dot(w[int(y_hat),:], x)])
                 if loss > 0.0:
-                    # if not np.all(x == 0.0):
-                    #     tau = loss / float(2 * np.dot(x,x))
-                    # else:
-                    #     tau = loss / X.shape[0]
-                    tau = 0.0509912
+                    if not np.all(x == 0.0):
+                        tau = loss / float(2 * np.dot(x,x))
+                    else:
+                        tau = loss / X.shape[0]
                     w[int(y),:] = w[int(y),:] + tau * x
                     w[int(y_hat),:] = w[int(y_hat),:] - tau * x
 
@@ -131,19 +127,19 @@ class SVM(Model):
         x_test = X_test.copy()
         y_test = Y_test.copy()
         best_acc = -1
-        alpha = np.random.random()
-        eta = np.random.uniform(0.001, 0.5)
+        alpha = 0.9092721155049693
+        eta = 0.28036960459983956
 
         if w is None:
             w = np.zeros((3,x_cv_train.shape[1]))
 
-        svm_w_list = []
+        accuracy_list = np.zeros(self.epochs)
         #x_train, x_test, y_train, y_test = split_train_test_with_prop_random(X, Y)
         for epoch in range(self.epochs):
-            shuffle(x_train)
-            shuffle(y_train)
-            shuffle(x_test)
-            shuffle(y_test)
+            # shuffle(x_train)
+            # shuffle(y_train)
+            # shuffle(x_test)
+            # shuffle(y_test)
             for x, y in zip(x_train, y_train):
                 y_hat = np.argmax(np.dot(w, x))
                 if y_hat != y:
@@ -153,16 +149,20 @@ class SVM(Model):
                     if i != y and i != y_hat:
                         w[i, :] = (1 - eta * alpha) * w[i, :]
 
-            svm_w_list.append(w.copy())
+            accuracy_list[epoch] = pred_valid(x_test, y_test, w)
+
+        accuracy_model = accuracy_list.mean()
+        print("eta: {}\n alpha: {}\n accuracy: {}".format(eta,alpha, accuracy_model))
+        self.w = w
 
 
-        idx , score = validate(svm_w_list,x_test,y_test)
-        print(np.true_divide(score,y_test.shape[0]))
-        if score > best_acc:
-            best_acc = score
-            self.w = svm_w_list[idx]
+        # idx , score = validate(svm_w_list,x_test,y_test)
+        # print(np.true_divide(score,y_test.shape[0]))
+        # if score > best_acc:
+        #     best_acc = score
+        #     self.w = svm_w_list[idx]
 
-        # self.w = w
+        self.w = w
 
         return self.w
 
@@ -370,7 +370,7 @@ if __name__ == "__main__":
 
     # run models
     #model_names = ['Perceptron', 'SVM', 'PA']
-    model_names = ['Perceptron','SVM']
+    model_names = ['Perceptron','SVM','PA']
     predicts = {}
 
     # perform cross validation
@@ -381,11 +381,12 @@ if __name__ == "__main__":
         nfolds = 8
         best_acc = -1
         folds = create_folds(np.concatenate([x_train,y_train],axis=1),nfolds)
+        Ws = []
         for i in range(nfolds):
 
-            prev_w = w
             #train set
             train_merged = np.concatenate(folds[:i] + folds[i + 1:])
+            shuffle(train_merged)
             x_cv_train = train_merged[:,:x_train.shape[1]]
             y_cv_train = train_merged[:,x_train.shape[1]]
 
@@ -394,14 +395,6 @@ if __name__ == "__main__":
             y_cv_test = folds[i][:,x_train.shape[1]]
 
             w = model.fit(x_cv_train, y_cv_train, x_cv_test, y_cv_test,w)
-
-            Ws = [prev_w,w]
-            idx, score = validate(Ws, x_cv_test, y_cv_test)
-
-            if score > best_acc:
-                best_acc = score
-                w = Ws[idx]
-
 
         predicts[model_name.lower()] = model.predict(x_test,y_test,to_print=True)
         print("\n")
