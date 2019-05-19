@@ -18,7 +18,7 @@ class Model(ABC):
         super(Model, self).__init__()
 
     @abstractmethod
-    def fit(self,X,Y,X_test,Y_test):
+    def fit(self,X,Y,X_test,Y_test,w=None):
         pass
 
     def predict(self,x_test,y_test=None,to_print=False):
@@ -46,27 +46,40 @@ class Perceptron(Model):
         super(Perceptron, self).__init__(*args, **kwargs)
         self.model_name = 'Perceptron'
 
-    def fit(self,X,Y):
-        #w = np.random.uniform(-0.5,0.5,(3,X.shape[1]))
-        w = np.array([[-0.37370176,0.02309853,-0.02886409,-0.57941457,0.35742136,-0.19498365,-0.39270688,-0.4430768,-0.1098553,0.4713786,0.10372131],
-        [-0.05160724,0.43913619,0.1081243,-0.75047572,0.23008437,-0.11137963,0.02179128,0.17009974,0.42444943,-0.1830452,-0.06628518],
-        [-0.26307821,0.64616801,0.39153138,0.33317525,-0.6241195,-0.40444592,0.35822757,0.20053011,0.33321939,0.44802492,-0.24912969]])
-        eta = 0.1805152982621216
-        #eta = np.random.uniform(0.01,0.3)
+    def fit(self,X,Y,X_test,Y_test,w=None):
+        x_train = X.copy()
+        y_train = Y.copy()
+        x_test = X_test.copy()
+        y_test = Y_test.copy()
+        eta = np.random.uniform(0.01,0.3)
+        best_acc = -1
+
         accuracy_list = np.zeros(self.epochs)
         for epoch in range(self.epochs):
-            x_train, y_train, x_valid, y_valid = validation_set(X, Y)
-            # Need to shuffle on X and Y 
+            # x_train, y_train, x_valid, y_valid = validation_set(X, Y)
+            # Need to shuffle on X and Y
+            shuffle(x_train)
+            shuffle(y_train)
+            shuffle(x_test)
+            shuffle(y_test)
             for x,y in zip(x_train,y_train):
                 y_hat = np.argmax(np.dot(w,x))
                 if y_hat != y:
                     w[int(y),:] = w[int(y),:] + eta * x
                     w[int(y_hat),:] = w[int(y_hat),:] - eta * x
 
-            accuracy_list[epoch] = pred_valid(x_valid, y_valid, w)
-        accuracy_model = accuracy_list.mean()
-        print("eta: {}\n accuracy: {}".format(eta, accuracy_model))
-        self.w = w
+            accuracy_list[epoch] = pred_valid(x_test, y_test, w)
+        # accuracy_model = accuracy_list.mean()
+        # print("eta: {}\n accuracy: {}".format(eta, accuracy_model))
+        # self.w = w
+
+        idx , score = validate(accuracy_list,x_test,y_test)
+        print(np.true_divide(score,y_test.shape[0]))
+        if score > best_acc:
+            best_acc = score
+            self.w = accuracy_list[idx]
+
+
         return w
 
 
@@ -94,6 +107,8 @@ class PA(Model):
                     w[int(y_hat),:] = w[int(y_hat),:] - tau * x
 
             accuracy_list[epoch] = pred_valid(x_valid, y_valid, w)
+
+
         accuracy_model = accuracy_list.mean()
         print("tau: {}\n accuracy: {}".format(tau, accuracy_model))
         self.w = w
@@ -355,7 +370,7 @@ if __name__ == "__main__":
 
     # run models
     #model_names = ['Perceptron', 'SVM', 'PA']
-    model_names = ['SVM']
+    model_names = ['Perceptron','SVM']
     predicts = {}
 
     # perform cross validation
