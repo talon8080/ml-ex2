@@ -369,7 +369,6 @@ if __name__ == "__main__":
     x_test = min_max_scaling(x_test)
 
     # run models
-    #model_names = ['Perceptron', 'SVM', 'PA']
     model_names = ['Perceptron','SVM','PA']
     predicts = {}
 
@@ -401,7 +400,7 @@ if __name__ == "__main__":
 
     for i in range(len(x_test)):
         for model_name in model_names:
-            if model_name.lower == 'pa':
+            if model_name.lower() == 'pa':
                 suffix = ''
             else:
                 suffix = ', '

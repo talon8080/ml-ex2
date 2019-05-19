@@ -15,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ex2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="401" column="4" selection-start-line="401" selection-start-column="4" selection-end-line="408" selection-end-column="15" />
+            <state relative-caret-position="67">
+              <caret line="377" column="43" selection-start-line="377" selection-start-column="43" selection-end-line="377" selection-end-column="43" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -165,12 +165,7 @@
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/ex2.py</url>
           <line>401</line>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ex2.py</url>
-          <line>407</line>
-          <option name="timeStamp" value="11" />
+          <option name="timeStamp" value="52" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -193,6 +188,11 @@ M_dummy = np.array(list(map(lambda x: 1 if x == 'M' else 0, X[:, 0])))</expressi
       </expression>
     </expressions>
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>model_names</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>w</expression-string>
         <language-id>Python</language-id>
@@ -233,11 +233,6 @@ M_dummy = np.array(list(map(lambda x: 1 if x == 'M' else 0, X[:, 0])))</expressi
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
-      <expression>
-        <expression-string>np.concatenate(folds[:i] + folds[i+1:]).shape[0]</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
@@ -264,8 +259,8 @@ M_dummy = np.array(list(map(lambda x: 1 if x == 'M' else 0, X[:, 0])))</expressi
     </entry>
     <entry file="file://$PROJECT_DIR$/ex2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="401" column="4" selection-start-line="401" selection-start-column="4" selection-end-line="408" selection-end-column="15" />
+        <state relative-caret-position="67">
+          <caret line="377" column="43" selection-start-line="377" selection-start-column="43" selection-end-line="377" selection-end-column="43" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
